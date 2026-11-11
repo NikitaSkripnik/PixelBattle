@@ -59,6 +59,7 @@ public abstract class Fighter {
 
     /* =================== для вашого коду =================== */
 
+    public void addToPopup(Popup p){popups.add(p);}
     public String getName() { return name; }
     public int getHp() { return hp; }
     public int getMaxHp() { return maxHp; }
