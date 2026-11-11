@@ -26,7 +26,9 @@ public class BattlePanel extends JPanel {
     private static final Color GOLD = new Color(255, 200, 40);
 
     private final Fighter[] heroes;
-    private final Fighter[] enemies;
+    private Fighter[] enemies;
+    private final Fighter[][] phases;
+    private int currentPhase = 0;
     private final JTextArea logArea = new JTextArea(7, 60);
     private final JPanel skillButtons = new JPanel();
     private final JLabel turnLabel = new JLabel();
@@ -58,9 +60,10 @@ public class BattlePanel extends JPanel {
         logArea.setCaretPosition(logArea.getDocument().getLength());
     };
 
-    public BattlePanel(Fighter[] heroes, Fighter[] enemies) {
+    public BattlePanel(Fighter[] heroes, Fighter[][] phases) {
         this.heroes = heroes;
-        this.enemies = enemies;
+        this.phases = phases;
+        this.enemies = phases[currentPhase];
         this.selectedEnemy = enemies[0];
         for (Fighter f : heroes) anims.put(f, new Anim());
         for (Fighter f : enemies) anims.put(f, new Anim());
@@ -84,7 +87,14 @@ public class BattlePanel extends JPanel {
         });
 
         log.accept("Бій починається! Клацніть по ворогу, щоб вибрати ціль.");
-        startHeroTurn();
+        log.accept("========== СТАДІЯ 1 ==========");
+
+        bannerText = "СТАДІЯ 1";
+        bannerTimer = 70;
+
+        Timer t = new Timer(1200, e -> startHeroTurn());
+        t.setRepeats(false);
+        t.start();
     }
 
     /** Нижня панель: чий хід, кнопки вмінь, журнал бою. */
@@ -235,19 +245,65 @@ public class BattlePanel extends JPanel {
         return true;
     }
 
+    private void nextPhase() {
+        currentPhase++;
+
+        enemies = phases[currentPhase];
+        selectedEnemy = enemies[0];
+
+        for (Fighter f : enemies) {
+            anims.put(f, new Anim());
+        }
+
+        heroIndex = 0;
+        turn++;
+        bannerText = "СТАДІЯ " + (currentPhase + 1);
+        bannerTimer = 70;
+
+        log.accept("========== СТАДІЯ " + (currentPhase + 1) + " ==========");
+
+        Timer t = new Timer(1200, e -> startHeroTurn());
+        t.setRepeats(false);
+        t.start();
+    }
+
     private boolean checkEnd() {
         if (finished) return true;
-        boolean win = allDead(enemies), lose = allDead(heroes);
-        if (!win && !lose) return false;
-        finished = true;
-        playerTurn = false;
-        script.clear();
-        scriptTimer.stop();
-        skillButtons.removeAll();
-        skillButtons.repaint();
-        turnLabel.setText(win ? "ПЕРЕМОГА!" : "ПОРАЗКА...");
-        log.accept(win ? "*** ПЕРЕМОГА! Ходів: " + turn + " ***" : "*** Герої загинули... ***");
-        return true;
+
+        boolean lose = allDead(heroes);
+
+        if (lose) {
+            finished = true;
+            playerTurn = false;
+            script.clear();
+            scriptTimer.stop();
+            skillButtons.removeAll();
+            skillButtons.repaint();
+            turnLabel.setText("ПОРАЗКА...");
+            log.accept("*** Герої загинули... ***");
+            return true;
+        }
+
+        if (allDead(enemies)) {
+            if (currentPhase + 1 < phases.length) {
+                script.clear();
+                scriptTimer.stop();
+                nextPhase();
+                return true;
+            }
+
+            finished = true;
+            playerTurn = false;
+            script.clear();
+            scriptTimer.stop();
+            skillButtons.removeAll();
+            skillButtons.repaint();
+            turnLabel.setText("ПЕРЕМОГА!");
+            log.accept("*** ПЕРЕМОГА! Ходів: " + turn + " ***");
+            return true;
+        }
+
+        return false;
     }
 
     /* ========================= графіка ========================= */

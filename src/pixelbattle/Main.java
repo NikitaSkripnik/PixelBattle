@@ -22,10 +22,11 @@ public class Main {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             Fighter[] heroes = { new Knight(), new Mage(), new Archer() };
-            Fighter[] enemies = { new Skeleton(), new Goblin(), new Ogre() };
+            Fighter[] enemies1 = { new Skeleton(), new Goblin(), new Ogre() };
+            Fighter[] enemies2 = { new Skeleton(), new Skeleton(), new Skeleton() };
             // БОНУС: додайте сюди нового ворога, наприклад new Skeleton()
-
-            BattlePanel battle = new BattlePanel(heroes, enemies);
+            Fighter[][] phases = {enemies1, enemies2};
+            BattlePanel battle = new BattlePanel(heroes, phases);
 
             JFrame frame = new JFrame("Pixel Battle");
             frame.add(battle, BorderLayout.CENTER);
