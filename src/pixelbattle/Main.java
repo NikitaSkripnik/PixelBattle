@@ -1,10 +1,7 @@
 package pixelbattle;
 
 import pixelbattle.core.Fighter;
-import pixelbattle.enemies.Goblin;
-import pixelbattle.enemies.Ogre;
-import pixelbattle.enemies.Skeleton;
-import pixelbattle.enemies.Slime;
+import pixelbattle.enemies.*;
 import pixelbattle.engine.BattlePanel;
 import pixelbattle.heroes.Archer;
 import pixelbattle.heroes.Knight;
@@ -22,8 +19,8 @@ public class Main {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             Fighter[] heroes = { new Knight(), new Mage(), new Archer() };
-            Fighter[] enemies1 = { new Skeleton(), new Goblin(), new Ogre() };
-            Fighter[] enemies2 = { new Skeleton(), new Skeleton(), new Skeleton() };
+            Fighter[] enemies1 = { new Slime(), new Goblin(), new Ogre() };
+            Fighter[] enemies2 = { new Skeleton(), new Devil(), new Skeleton() };
             // БОНУС: додайте сюди нового ворога, наприклад new Skeleton()
             Fighter[][] phases = {enemies1, enemies2};
             BattlePanel battle = new BattlePanel(heroes, phases);

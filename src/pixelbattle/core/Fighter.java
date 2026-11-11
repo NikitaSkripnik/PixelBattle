@@ -48,6 +48,8 @@ public abstract class Fighter {
     private final Map<Skill, Integer> cooldowns = new HashMap<>();
     private Ultimate ultimate;
     private final List<Popup> popups = new ArrayList<>();
+    private int tauntTurns = 0;
+    private boolean second_chance = false;
 
     protected Fighter(String name, int maxHp, Sprite sprite) {
         if (maxHp <= 0) throw new IllegalArgumentException("HP має бути більше 0");
@@ -56,6 +58,9 @@ public abstract class Fighter {
         this.hp = maxHp;
         this.sprite = sprite;
     }
+
+    public boolean getSecondChance(){return second_chance;}
+    public void setSecondChance(boolean chance){second_chance = chance;}
 
     /* =================== для вашого коду =================== */
 
@@ -82,6 +87,22 @@ public abstract class Fighter {
             popups.add(new Popup("МИМО", Popup.Kind.MISS));
         }
         return dmg;
+    }
+
+    public void applyTaunt(int turns) {
+        tauntTurns = turns;
+        popups.add(new Popup("Провокація", Popup.Kind.DAMAGE));
+    }
+
+    public boolean isTaunting() {
+        return tauntTurns > 0 && isAlive();
+    }
+
+    public void updateTaunt() {
+        boolean changed = false;
+        if (tauntTurns > 0) { tauntTurns--; if(tauntTurns==0) changed=true;}
+
+        if(changed){ popups.add(new Popup("Провокація завершилася", Popup.Kind.HEAL));}
     }
 
     /** Лікує, але не вище максимуму. Повертає, скільки реально відновлено. */

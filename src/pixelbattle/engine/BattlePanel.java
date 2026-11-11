@@ -55,6 +55,7 @@ public class BattlePanel extends JPanel {
     private String bannerText = "";
     private int bannerTimer = 0;
 
+
     private final Consumer<String> log = msg -> {
         logArea.append(msg + "\n");
         logArea.setCaretPosition(logArea.getDocument().getLength());
@@ -77,6 +78,12 @@ public class BattlePanel extends JPanel {
         addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
+                for (Fighter enemy : enemies) {
+                    if (enemy.isAlive() && enemy.isTaunting()) {
+                        selectedEnemy = enemy;
+                        return;
+                    }
+                }
                 for (int i = 0; i < enemies.length; i++) {
                     Fighter en = enemies[i];
                     Point p = enemyPos(i);
@@ -205,7 +212,17 @@ public class BattlePanel extends JPanel {
     }
 
     private Fighter pickEnemyTarget() {
-        if (selectedEnemy == null || !selectedEnemy.isAlive()) selectedEnemy = randomAlive(enemies);
+        for (Fighter enemy : enemies) {
+            if (enemy.isAlive() && enemy.isTaunting()) {
+                selectedEnemy = enemy;
+                return enemy;
+            }
+        }
+
+        if (selectedEnemy == null || !selectedEnemy.isAlive()) {
+            selectedEnemy = randomAlive(enemies);
+        }
+
         return selectedEnemy;
     }
 
@@ -227,6 +244,11 @@ public class BattlePanel extends JPanel {
         }
         script.add(() -> {
             if (finished) return;
+
+            for (Fighter enemy : enemies) {
+                enemy.updateTaunt();
+            }
+
             turn++;
             heroIndex = 0;
             startHeroTurn();
