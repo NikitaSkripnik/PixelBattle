@@ -16,6 +16,7 @@ public class Slime extends Enemy {
                         + target.takeDamage(random(5, 9)) + " шкоди"));
     }
 
+    //"Регенерація"
     @Override
     protected void onTurnStart() { heal(6);}
 }

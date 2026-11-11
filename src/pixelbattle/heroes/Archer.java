@@ -1,9 +1,10 @@
 package pixelbattle.heroes;
 
-import pixelbattle.core.Hero;
-import pixelbattle.core.Skill;
-import pixelbattle.core.Target;
+import pixelbattle.core.*;
 import pixelbattle.engine.Sprite;
+
+import java.util.Random;
+
 
 /** Лучниця — швидка й спритна. */
 public class Archer extends Hero {
@@ -20,12 +21,28 @@ public class Archer extends Hero {
                         + (target.takeDamage(random(7, 10))+target.takeDamage(random(7, 10))) + " шкоди"));
 
 
-        // TODO 9: ультимейт «Злива стріл» — АНОНІМНИЙ КЛАС з полем-лічильником:
-        //   кожен живий ворог отримує N стріл по random(4, 8) шкоди,
-        //   де N = 3 при першому використанні, 4 — при другому, 5 — при третьому...
-        //   (лічильник — поле всередині анонімного класу; знадобиться вкладений цикл).
+        setUltimate(new Ultimate() {
+            private int shots = 3;
+            @Override public String getName() { return "Злива стріл"; }
+            @Override public String getDescription() { return "Стріляє по випадковим цілям та наносить від 4 до 8 шкоди. Перший раз робить 3 постріли. Кожен наступний раз робить на 1 постріл більше"; }
+            @Override public String activate(Fighter user, Fighter[] allies, Fighter[] enemies) {
+                for (int i = 0; i<shots; i++) {
+                    while (true){
+                        Random random = new Random();
+                        Fighter e = enemies[random.nextInt(enemies.length)];
+                        if (e.isAlive()){
+                            e.takeDamage(random(4,8));
+                            break;
+                        }
+                    }
+                }
+                shots++;
+                return "Робить " + (shots-1) + " блискавично-швидких пострілів";
+            }
+        });
     }
 
+    //"Ухилення"
     @Override
     protected int modifyIncomingDamage(int damage) {
         if(chance(25))return 0;
